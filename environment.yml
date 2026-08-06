@@ -1,50 +1,13 @@
-name: festim-workshop
+name: festim-introduction
 channels:
   - conda-forge
-  - defaults
-
 dependencies:
-  - setuptools
-  - wheel<0.45
-  - jupyter-book<2.0
-  # Must be an EXACT pin, not a `<` constraint: repo2docker (Binder / the CI image build)
-  # only picks up the Python version when it is pinned exactly, otherwise it builds its base
-  # environment on its own default Python and then has to rewrite the whole stack on top.
-  # 3.12 because autoemulate is not compatible with Python 3.13 yet.
   - python=3.12
-  - pip
-  - jupytext # necessary to open MyST files using BinderHub https://jupyterbook.org/en/stable/interactive/launchbuttons.html#launchbuttons-binder
-  - sphinx-tags
+  - festim=2.0
+  - ipykernel=6.29.5
   - ipywidgets
+  - numpy
   - matplotlib
-  - meshio[all]
-  - ipykernel
-  - nbconvert
-  - sphinx-codeautolink
-  - fenics-dolfinx>=0.11.0  # >=0.11 required for FESTIM 2.2 gas enclosures (real elements)
-  - festim==2.2rc1
-  - pyvista<0.47.1
-  - python-gmsh
-  - shapely
   - scipy
-  - pyparsing
-  - imageio
-  - trame
-  # No explicit `vtk` entry: it arrives anyway via pyvista, so listing it changed nothing (an
-  # image built without it came out byte-identical). Note the `pyvista<0.47.1` pin resolves to
-  # pyvista 0.44.1, which requires the full `vtk` metapackage -- qt6-main, pyside6, ffmpeg,
-  # OpenVINO, intel-media-driver. pyvista >=0.46 moved to `vtk-base` and >=0.48 is the first
-  # that accepts vtk 9.6, so shedding those GBs means relaxing the pyvista pin.
-  - trame-vtk<2.10.3
-  - trame-vuetify
-  - nest-asyncio2
-  - pip:
-    - h-transport-materials==0.16
-    - foam2dolfinx>=1.1
-    - openmc2dolfinx>=1.0.2
-    # NB: this pulls the CUDA build (nvidia-cublas/cudnn/cusolver/cusparse/cufft/nccl + triton,
-    # ~3.3 GB of wheels) even though Binder, Codespaces and RTD are all CPU-only. Swapping it for
-    # conda-forge `pytorch-cpu` would shed most of that -- worth revisiting once the workflow's
-    # layer-size report shows how close the single conda layer is to GHCR's 10 GB limit.
-    - torch<2.12.0
-    - autoemulate
+  - nbformat
+  - nbconvert
