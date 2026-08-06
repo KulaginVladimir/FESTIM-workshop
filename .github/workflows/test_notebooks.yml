@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - simplified_workshop
   pull_request:
     branches:
       - main

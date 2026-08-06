@@ -2,7 +2,7 @@
 
 Материалы для введения в моделирование переноса изотопов водорода в материалах с помощью FESTIM.
 
-## Установка
+## Установка (требуется conda)
 
 ```bash
 git clone https://github.com/KulaginVladimir/FESTIM-Introduction.git
