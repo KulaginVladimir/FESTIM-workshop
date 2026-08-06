@@ -1,0 +1,95 @@
+name: Test notebooks
+
+on:
+  push:
+    branches:
+      - main
+      - simplified_workshop
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test-notebooks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Create Conda environment
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          miniforge-version: latest
+          environment-file: environment.yml
+          activate-environment: festim-introduction
+
+      - name: Register Jupyter kernel
+        run: |
+          python -m ipykernel install \
+            --user \
+            --name festim-introduction \
+            --display-name "Python (festim-introduction)"
+
+      - name: Check FESTIM import
+        run: |
+          python -c "import festim as F; print('FESTIM', F.__version__)"
+
+      - name: Execute notebooks
+        env:
+          MPLBACKEND: Agg
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          import nbformat
+          from nbclient import NotebookClient
+
+          excluded_notebooks = {
+              "task04_fit_TDS.ipynb",
+          }
+
+          notebooks = [
+              path
+              for path in sorted(Path("notebooks").rglob("*.ipynb"))
+              if path.name not in excluded_notebooks
+          ]
+
+          if not notebooks:
+              raise RuntimeError("Notebooks were not found")
+
+          print(f"Found {len(notebooks)} notebooks")
+
+          for path in notebooks:
+              print(f"\nExecuting: {path}")
+
+              notebook = nbformat.read(path, as_version=4)
+
+              client = NotebookClient(
+                  notebook,
+                  kernel_name="festim-introduction",
+                  timeout=1800,
+                  resources={
+                      "metadata": {
+                          "path": str(path.parent),
+                      }
+                  },
+              )
+
+              client.execute()
+
+              print(f"Completed: {path}")
+
+          print(
+              f"\nSuccessfully executed "
+              f"{len(notebooks)} notebooks"
+          )
+          PY
